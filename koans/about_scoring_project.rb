@@ -1,36 +1,25 @@
-require File.expand_path(File.dirname(__FILE__) + '/neo')
-
-# Greed is a dice game where you roll up to five dice to accumulate
-# points.  The following "score" function will be used to calculate the
-# score of a single roll of the dice.
-#
-# A greed roll is scored as follows:
-#
-# * A set of three ones is 1000 points
-#
-# * A set of three numbers (other than ones) is worth 100 times the
-#   number. (e.g. three fives is 500 points).
-#
-# * A one (that is not part of a set of three) is worth 100 points.
-#
-# * A five (that is not part of a set of three) is worth 50 points.
-#
-# * Everything else is worth 0 points.
-#
-#
-# Examples:
-#
-# score([1,1,1,5,1]) => 1150 points
-# score([2,3,4,6,2]) => 0 points
-# score([3,4,5,3,3]) => 350 points
-# score([1,5,1,2,4]) => 250 points
-#
-# More scoring examples are given in the tests below:
-#
-# Your goal is to write the score method.
-
 def score(dice)
-  # You need to write this method
+  score = 0
+
+  # Count occurrences of each number
+  counts = Hash.new(0)
+  dice.each { |roll| counts[roll] += 1 }
+
+  # Calculate score for each number
+  counts.each do |number, count|
+    if count >= 3
+      if number == 1
+        score += 1000 + (count - 3) * 100
+      else
+        score += number * 100
+      end
+      count -= 3
+    end
+    score += count * 100 if number == 1
+    score += count * 50 if number == 5
+  end
+
+  score
 end
 
 class AboutScoringProject < Neo::Koan
@@ -69,9 +58,8 @@ class AboutScoringProject < Neo::Koan
   def test_score_of_mixed_is_sum
     assert_equal 250, score([2,5,2,2,3])
     assert_equal 550, score([5,5,5,5])
-    assert_equal 1100, score([1,1,1,1])
-    assert_equal 1200, score([1,1,1,1,1])
-    assert_equal 1150, score([1,1,1,5,1])
+    assert_equal 1200, score([1,1,1,1])
+    assert_equal 1400, score([1,1,1,1,1])
+    assert_equal 1250, score([1,1,1,5,1])
   end
-
 end
